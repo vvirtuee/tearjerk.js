@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<head>
+<style>
+div{position:absolute;}
+canvas{height:100%;width:100%;margin:0;left:0;}
+
+</style>
+<title>tearjerk.js</title>
+
+</head>
+
+<div id="display"><canvas id ="canvas"></canvas>
+<canvas id="canvas1"style="z-index:2;margin:0;padding:0;position:fixed;top:0;left:0;bottom:0;background-color:pink;"></canvas>
+<canvas id="canvas2"style="z-index:3;margin:0;padding:0;position:fixed;top:0;left:0;bottom:0;background-color:lime;"></canvas>
+</div>
+
+<script>
+
+var img = document.createElement("img");
+img.src = "tear.png";
+document.getElementById("display").appendChild(img);
+img.style.position = 'absolute';
+
+/*
+var tear = document.createElement("img");
+tear.src = "tear.png";
+document.getElementById("display").appendChild(tear);
+tear.style.position = 'absolute';
+*/
+var x = 0;
+var y = 0;
+var oldx = 0;
+var oldy = 0;
+var direction = 0;
+
+mousemovemethod = function(e){
+	x = e.clientX;
+	y = e.clientY;
+	img.style.paddingLeft = x + "px";
+	img.style.paddingTop  = y + "px";
+	if(e.pageX < oldx){
+		//LEFT
+	}else if(e.pageX > oldx){
+		//RIGHT
+	}else if(e.pageY < oldy){
+		//UP
+	}else if(e.pageY > oldy){
+		//DOWN
+	}
+	oldx = e.pageX;
+	oldy = e.pageY;
+}
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+ctx.canvas.width = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+ctx.strokeStyle = "#93d9ff";
+
+var canvas1 = document.getElementById("canvas1");
+var ctx1 = canvas1.getContext("2d");
+ctx1.canvas.width = window.innerWidth;
+ctx1.canvas.height = window.innerHeight;
+ctx1.strokeStyle = "red";
+
+var canvas2 = document.getElementById("canvas2");
+var ctx2 = canvas2.getContext("2d");
+ctx2.canvas.width = window.innerWidth;
+ctx2.canvas.height = window.innerHeight;
+ctx2.strokeStyle = "blue";
+
+var speed = 10;
+var deltaY = 0;
+setInterval(program, 50);
+function Draw(initialX,initialY){
+	ctx.beginPath();
+	ctx.lineWidth = speed;
+	ctx.moveTo(oldx-37, oldy);
+	ctx.lineTo(oldx+37, oldy);
+	if(deltaY < ctx.canvas.height){
+		ctx.clearRect(oldx, oldy, oldx+ctx.canvas.width , oldy+ctx.canvas.height);
+	}
+	ctx.stroke();
+	
+}
+
+function Paint1(){
+	ctx1.beginPath();
+	ctx1.lineWidth = speed;
+	ctx1.moveTo(oldx-37, oldy-start1);
+	ctx1.lineTo(oldx+37, oldy-start1);
+	ctx1.stroke();
+}
+
+function Paint2(){
+	ctx2.beginPath();
+	ctx2.lineWidth = speed;
+	ctx2.moveTo(oldx-37, oldy-start2+ctx.canvas.height);
+	ctx2.lineTo(oldx+37, oldy-start2+ctx.canvas.height);
+	ctx2.stroke();
+}
+var start1 = 0;
+var start2 = 0;
+canvas1.style.height = ctx.canvas.height + "px";
+canvas2.style.height = ctx.canvas.height + "px";
+function program(){
+	
+	deltaY += speed;
+	//Draw();
+	if(start1 > ctx.canvas.height){
+		start1 = -ctx.canvas.height+speed;
+		ctx1.clearRect(0,0,canvas.width,canvas.height);
+	}
+	if(start2 > ctx.canvas.height*2){
+		start2 = 0+speed;
+		ctx2.clearRect(0,0,canvas.width,canvas.height);
+	}
+	
+
+	start1 = start1 + speed;
+	start2 = start2 + speed;
+	
+	canvas1.style.top = start1 + "px"; //slides canvas upwards
+	canvas2.style.top = -ctx.canvas.height + start2 + "px";
+	
+	Paint1();
+	Paint2();
+	
+	
+	
+	
+	
+	
+}
+
+	
+document.addEventListener('mousemove', mousemovemethod);
+
+</script>
+</html>

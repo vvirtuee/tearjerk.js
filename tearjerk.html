@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<head>
+<style>
+body{overflow:hidden;}
+div{position:absolute;}
+canvas{height:100%;width:100%;margin:0;left:0;}
+#tearY{width:100%;}
+p{font-family:verdana;font-weight:ligher;color:#cccccc;font-size:10px;position:fixed;margin:10px;}
+</style>
+<title>tearjerk.js</title>
+<link rel="icon" href="favicon.png" type="image/png">
+</head>
+
+<body onload="program()"onkeypress="myFunction(event)">
+
+<p>home (press h) | reset (press r)</p>
+
+<div id="display"style="z-index:5;"></div>
+<div id="tearY"><img src="tearwave.gif"/></div>
+<canvas id ="canvas"style="z-index:5;"></canvas>
+<canvas id="canvas1"style="z-index:4;margin:0;padding:0;position:fixed;top:0;left:0;bottom:0;"></canvas>
+<canvas id="canvas2"style="z-index:4;margin:0;padding:0;position:fixed;top:0;left:0;bottom:0;"></canvas>
+<canvas id="canvas3"style="z-index:0;margin:0;padding:0;position:fixed;top:0;left:0;bottom:0;"></canvas>
+<canvas id="canvas4"style="z-index:3;margin:0;padding:0;position:fixed;top:0;left:0;bottom:0;"></canvas>
+
+</body>
+<script>
+
+
+
+var img = document.createElement("img");
+document.getElementById("display").appendChild(img);
+img.style.position = 'absolute';
+
+var x = 0;
+var y = 0;
+var oldx = 0;
+var oldy = 0;
+var direction = 0;
+img.src = "eye_close/eye_close.gif";
+//eyeball
+
+var clicked = 0;
+
+document.getElementById("display").onclick = function(){
+	clicked = 1;
+	img.src = "eye_open/eye_open.gif";
+}
+
+function myFunction(event){
+	var x = event.which || event.keyCode;
+	if(x == 82 || x == 114){
+		location.reload();
+		return false;
+	}
+}
+
+mousemovemethod = function(e){
+	x = e.pageX;
+	y = e.pageY;
+	img.style.marginLeft = x-45 + "px";
+	img.style.marginTop  = y-58 + "px";
+	if(clicked == 1){
+	
+		if(e.pageX < oldx){
+			direction = 1;
+			img.src = "eye_left/eye_left.gif";
+		}else if(e.pageX > oldx){
+			direction = 2;
+			img.src = "eye_right/eye_right.gif";
+		}else if(e.pageY < oldy){
+			direction = 3;
+			img.src = "eye_up/eye_up.gif";
+		}else if(e.pageY > oldy){
+			direction = 4;
+			img.src = "eye_down/eye_down.gif";
+		}
+		
+		var rate = setInterval(delay, 1000);
+		/** Straightens Eyeball **/	
+		function delay(){
+			clearInterval(rate);
+			img.src = "eye_open/eye_open.gif";	
+		}
+	}
+	oldx = e.pageX;
+	oldy = e.pageY;
+}
+
+//reference
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+ctx.canvas.width = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+
+//first drift tear
+var canvas1 = document.getElementById("canvas1");
+var ctx1 = canvas1.getContext("2d");
+ctx1.canvas.width = window.innerWidth;
+ctx1.canvas.height = window.innerHeight;
+ctx1.strokeStyle = "#2FEFFF";
+
+//second drift tear
+var canvas2 = document.getElementById("canvas2");
+var ctx2 = canvas2.getContext("2d");
+ctx2.canvas.width = window.innerWidth;
+ctx2.canvas.height = window.innerHeight;
+ctx2.strokeStyle = "#2FEFFF";
+
+//pool of tears
+var canvas3 = document.getElementById("canvas3");
+var ctx3 = canvas3.getContext("2d");
+ctx3.canvas.width = window.innerWidth;
+ctx3.canvas.height = window.innerHeight;
+ctx3.fillStyle = "#2FEFFF";
+
+//text
+var canvas4 = document.getElementById("canvas4");
+var ctx4 = canvas4.getContext("2d");
+ctx4.canvas.width = window.innerWidth;
+ctx4.canvas.height = window.innerHeight;
+ctx4.fillStyle = "white";
+
+var speed = 10; //rate at which tears fall
+var deltaY = 0;
+setInterval(program, 25); //program execution time
+
+function Paint1(){
+	ctx1.beginPath();
+	ctx1.lineWidth = speed;
+	ctx1.moveTo(oldx-37, oldy-start1);
+	ctx1.lineTo(oldx+37, oldy-start1);
+	ctx1.stroke();
+}
+
+function Paint2(){
+	ctx2.beginPath();
+	ctx2.lineWidth = speed;
+	ctx2.moveTo(oldx-37, oldy-start2+ctx.canvas.height);
+	ctx2.lineTo(oldx+37, oldy-start2+ctx.canvas.height);
+	ctx2.stroke();
+}
+
+function Paint3(){
+	ctx3.beginPath();
+	ctx3.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
+	ctx3.stroke();
+}
+
+var start1 = 0;
+var start2 = 0;
+var start3 = ctx.canvas.height;
+canvas1.style.height = ctx.canvas.height + "px";
+canvas2.style.height = ctx.canvas.height + "px";
+
+
+
+function program(){
+
+	if(clicked == 1){
+		//tear1 reset
+		if(start1 > ctx.canvas.height){
+			start1 = -ctx.canvas.height+speed;
+			ctx1.clearRect(0,0,canvas.width,canvas.height);
+		}
+	
+		//tear2 reset
+		if(start2 > ctx.canvas.height*2){
+			start2 = 0+speed;
+			ctx2.clearRect(0,0,canvas.width,canvas.height);
+		}
+	
+		//tear1 and tear2 increments
+		start1 = start1 + speed;
+		start2 = start2 + speed;
+	
+		//slides all canvases upwards
+		canvas1.style.top = start1 + "px"; //slides canvas upwards
+		canvas2.style.top = -ctx.canvas.height + start2 + "px";
+		canvas3.style.top = start3 + 30 +"px";
+		document.getElementById("tearY").style.top = start3 + 'px';
+	
+		//increase counter for tears to rise
+		deltaY += speed;
+		if(deltaY > 1500){
+			start3--;
+		}
+		if(start3 <= ctx.canvas.height/2.5){
+			start3 = ctx.canvas.height/2.5;
+		}else{
+			Paint1();
+			Paint2();
+			Paint3();
+		}
+	}
+}
+
+//tearwave
+document.getElementById("tearY").style.left = 0 + 'px';
+document.getElementById("tearY").style.top = ctx.canvas.height + 'px';
+document.getElementById("tearY").style.backgroundImage = "url('tearwave.gif')";
+document.getElementById("tearY").style.backgroundRepeat = 'repeat-x';
+document.addEventListener('mousemove', mousemovemethod);
+
+var randomQuote=[
+            "''I like to cry at the ocean, because only there do my tears seem small.''",
+			"''Now if you'll excuse me, I need to go take a shower so I can't tell if I'm crying or not.''",
+			"''All my jokes are cries for help.''",
+			"''Don't cry because it's over, smile because it happened.''",
+			"''Put my head under my pillow, and let the quiet put things where they are supposed to be.''",
+			"''Everybody needs a comfy space to cry!''",
+			"''Crying is for plain women. Pretty women go shopping.''",
+			"''People cry, not because they are weak. It is because they've been strong for too long.''",
+			"''Crying doesn't indicate that you are weak. Since birth, it has always been a sign that you are alive.''",
+			"''Heavy hearts, like heavy clouds in the sky, are best relieved by the letting of a little water.''",
+			"''Some nights you dance with tears in your eyes.''",
+	
+	];
+var randomQuoteSayer = [
+			"-Nelson (The Simpsons)",
+			"-Bojack Horseman",
+			"-Princess Bubblegum (Adventure Time)",
+			"-Dr. Seuss",
+			"-Stephen Chbosky (The Perks of Being a Wallflower)",
+			"-Rebecca Sugar",
+			"-Oscar Wilde",
+			"-Johnny Depp",
+			"-Sarah Dessen (Just Listen)",
+			"-Antoine Rivarol",
+			"-Frank Ocean (Self Control)",
+	];
+var size = randomQuote.length;
+var random = Math.floor(size*Math.random());
+
+ctx4.beginPath();
+ctx4.fillStyle="white";
+ctx4.textAlign = "center";
+ctx4.font = "italic 30px Times New Roman";
+
+ctx4.fillText(randomQuote[random], ctx.canvas.width/2, ctx.canvas.height/2);
+ctx4.textAlign = "right";
+ctx4.font = "italic 25px Times New Roman";
+ctx4.fillText(randomQuoteSayer[random], 2*ctx.canvas.width/3, 3*ctx.canvas.height/5);
+
+ctx4.stroke();
+
+</script>
+</html>
